@@ -483,3 +483,277 @@ a.btn {
     border: 1px solid #ccc;
     border-radius: var(--radius-input);
 }
+
+/* === Swipe View === */
+.swipe-view {
+    text-align: center;
+    padding: 30px 20px;
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.swipe-heading {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--color-text);
+}
+
+.swipe-subheading {
+    font-size: 15px;
+    color: var(--color-text-secondary);
+    margin-top: 0;
+    margin-bottom: 30px;
+}
+
+.swipe-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    user-select: none;
+}
+
+.swipe-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Pass / Edit zones */
+.swipe-zone {
+    border: none;
+    width: 90px;
+    padding: 0;
+    font-family: var(--font-primary);
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+}
+
+.swipe-zone:hover {
+    opacity: 0.85;
+}
+
+.swipe-zone__icon {
+    font-size: 36px;
+}
+
+.swipe-zone__label {
+    font-size: 16px;
+}
+
+.swipe-zone--pass {
+    background: var(--color-pink);
+    color: white;
+    border-radius: var(--radius-card);
+}
+
+.swipe-zone--edit {
+    background: var(--color-green);
+    color: white;
+    border-radius: var(--radius-card);
+}
+
+/* Card stack */
+.card-stack {
+    position: relative;
+    width: 340px;
+    height: 300px;
+    flex-shrink: 0;
+}
+
+.stack-card {
+    position: absolute;
+    border-radius: var(--radius-card);
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.stack-card--back {
+    width: 300px;
+    height: 270px;
+    top: 20px;
+    left: 20px;
+    opacity: 0.5;
+}
+
+.stack-card--mid {
+    width: 320px;
+    height: 285px;
+    top: 10px;
+    left: 10px;
+    opacity: 0.75;
+}
+
+/* Active swipe card */
+.swipe-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 340px;
+    height: 300px;
+    border-radius: var(--radius-card);
+    background: white;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    transition: transform 0.35s ease, opacity 0.35s ease;
+    cursor: grab;
+    z-index: 2;
+}
+
+.swipe-card:active {
+    cursor: grabbing;
+}
+
+.swipe-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.swipe-card__gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
+    pointer-events: none;
+}
+
+.swipe-card__title {
+    position: absolute;
+    bottom: 14px;
+    left: 20px;
+    right: 20px;
+    margin: 0;
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: left;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Info box below card */
+.swipe-info-box {
+    width: 340px;
+    margin-top: 12px;
+    background: var(--color-bg);
+    border-radius: var(--radius-input);
+    overflow: hidden;
+}
+
+.swipe-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 18px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.swipe-info-row--last {
+    border-bottom: none;
+}
+
+.swipe-info-label {
+    color: var(--color-text);
+    font-weight: 500;
+}
+
+.swipe-info-value {
+    color: var(--color-text-secondary);
+    text-align: right;
+}
+
+.swipe-info-value .missing {
+    color: var(--color-orange);
+}
+
+/* Swipe animations */
+.swipe-card.swipe-left {
+    transform: translateX(-150%) rotate(-15deg);
+    opacity: 0;
+}
+
+.swipe-card.swipe-right {
+    transform: translateX(150%) rotate(15deg);
+    opacity: 0;
+}
+
+.swipe-card.dragging {
+    transition: none;
+}
+
+/* Reset button */
+.btn-reset {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 15px 30px;
+    background: var(--color-green);
+    color: white;
+    text-decoration: none;
+    font-family: var(--font-primary);
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: var(--radius-card);
+}
+
+.btn-reset:hover {
+    opacity: 0.85;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+    .swipe-area {
+        gap: 10px;
+    }
+
+    .swipe-zone {
+        width: 65px;
+        height: 240px;
+        font-size: 14px;
+    }
+
+    .swipe-zone__icon {
+        font-size: 28px;
+    }
+
+    .card-stack {
+        width: 250px;
+        height: 240px;
+    }
+
+    .swipe-card {
+        width: 250px;
+        height: 240px;
+    }
+
+    .swipe-info-box {
+        width: 250px;
+    }
+
+    .stack-card--back {
+        width: 210px;
+        height: 210px;
+        top: 20px;
+        left: 20px;
+    }
+
+    .stack-card--mid {
+        width: 230px;
+        height: 225px;
+        top: 10px;
+        left: 10px;
+    }
+}

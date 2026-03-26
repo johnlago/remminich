@@ -27,9 +27,11 @@ urlpatterns = [
     path('', views.index, name='root'),
     path('asset/<uuid:asset_uuid>/thumb/', views.get_asset_thumbnail, name='get_asset_thumbnail'),
     path('albums/<uuid:album_uuid>/', views.get_album, name='album_detail'),
-    # path('albums/', views.create_album, name='create_album'),
-    path('albums/update', views.update_album, name='create_album'),
+    path('albums/update', views.update_album, name='update_album'),
     path('search/places', views.search_places, name='search_places'),
+    path('api/next-album/', views.next_album, name='next_album'),
+    path('api/pass-album/', views.pass_album, name='pass_album'),
+    path('api/reset-queue/', views.reset_queue, name='reset_queue'),
 
     ####
 

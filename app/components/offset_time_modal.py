@@ -6,6 +6,7 @@ from immich.models import BulkUpdateAssetsModel
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from app.update_rel import adjust_iso8601_time
+from app.neediness import invalidate_cache
 
 class OffsetTimeModalView(UnicornView):
     showing:bool = False
@@ -33,6 +34,7 @@ class OffsetTimeModalView(UnicornView):
                             dateTimeOriginal=new_time
                         ))
 
+        invalidate_cache(self.album_id)
         return redirect('album_detail', album_uuid=self.album_id)
 
     def mount(self):

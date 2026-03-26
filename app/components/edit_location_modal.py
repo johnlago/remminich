@@ -5,6 +5,7 @@ from immich.ImmichClient import ImmichClient
 from immich.models import BulkUpdateAssetsModel
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
+from app.neediness import invalidate_cache
 def _format(v):
     name = v['name']
     if v['admin1name']:
@@ -39,7 +40,7 @@ class EditLocationModalView(UnicornView):
             latitude=self.chosen['latitude'],
             longitude=self.chosen['longitude']
         ))
-        time.sleep(3)
+        invalidate_cache(self.album_id)
         return redirect('album_detail', album_uuid=self.album_id)
 
     def mount(self):

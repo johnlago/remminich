@@ -22,6 +22,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import Album
+from .neediness import get_album_queue, invalidate_cache
 from immich.ImmichClient import ImmichClient
 from immich.models import BulkUpdateAssetsModel
 
@@ -201,22 +202,113 @@ def profile(request):
 
 
 def index(request):
-	all_albums = ImmichClient.list_albums()
-	first = all_albums[0]
-	a = ImmichClient.get_album(first['id'])
+	import json
 
-	summary_data = _get_summary_data(a)
+	# Get passed albums from session
+	passed = set(request.session.get('passed_albums', []))
+	queue = get_album_queue(exclude_ids=passed)
 
-	thumb = f"/asset/{a['albumThumbnailAssetId']}/thumb"
-	return render(request, "index.html",
-				  {
-					  "albums": [],
-					  "album_name": a['albumName'],
-					  "album_uuid": a['id'],
-					  "album_image_link": thumb,
-					  "summary_data":summary_data
-				  }
-	)
+	if not queue:
+		# All albums have been passed or none exist
+		return render(request, "index.html", {
+			"album_data_json": json.dumps(None),
+			"has_albums": False,
+		})
+
+	# Build data for the first few albums to preload in the template
+	preload = queue[:3]
+	album_data = []
+	for album in preload:
+		thumb_id = album.get('albumThumbnailAssetId')
+		thumb_url = f"/asset/{thumb_id}/thumb" if thumb_id else ""
+
+		# Get summary data for info box
+		a = ImmichClient.get_album(album['id'])
+		summary = _get_summary_data(a)
+
+		album_data.append({
+			'id': album['id'],
+			'albumName': album['albumName'],
+			'thumbnailUrl': thumb_url,
+			'assetCount': album['assetCount'],
+			'neediness': round(album['neediness'], 1),
+			'dates': summary['dates'],
+			'locations': summary['locations'],
+			'no_dates': album['neediness_data']['no_dates'],
+			'no_captions': album['neediness_data']['no_captions'],
+			'no_locations': album['neediness_data']['no_locations'],
+			'total': album['neediness_data']['total'],
+		})
+
+	return render(request, "index.html", {
+		"album_data_json": json.dumps(album_data),
+		"has_albums": True,
+		# Pass first album's data for initial server-rendered card
+		"album_name": album_data[0]['albumName'],
+		"album_uuid": album_data[0]['id'],
+		"album_image_link": album_data[0]['thumbnailUrl'],
+		"summary_data": {
+			'dates': album_data[0]['dates'],
+			'locations': album_data[0]['locations'],
+			'captions_count': album_data[0]['total'] - album_data[0]['no_captions'],
+		},
+	})
+
+
+def next_album(request):
+	"""API endpoint: returns the next album in the neediness queue as JSON."""
+	import json
+
+	passed = set(request.session.get('passed_albums', []))
+	queue = get_album_queue(exclude_ids=passed)
+
+	if not queue:
+		return JsonResponse({"done": True, "album": None})
+
+	album = queue[0]
+	thumb_id = album.get('albumThumbnailAssetId')
+	thumb_url = f"/asset/{thumb_id}/thumb" if thumb_id else ""
+
+	a = ImmichClient.get_album(album['id'])
+	summary = _get_summary_data(a)
+
+	return JsonResponse({
+		"done": False,
+		"album": {
+			'id': album['id'],
+			'albumName': album['albumName'],
+			'thumbnailUrl': thumb_url,
+			'assetCount': album['assetCount'],
+			'neediness': round(album['neediness'], 1),
+			'dates': summary['dates'],
+			'locations': summary['locations'],
+			'no_dates': album['neediness_data']['no_dates'],
+			'no_captions': album['neediness_data']['no_captions'],
+			'no_locations': album['neediness_data']['no_locations'],
+			'total': album['neediness_data']['total'],
+		}
+	})
+
+
+def pass_album(request):
+	"""Mark an album as passed in the user's session."""
+	if request.method == 'POST':
+		import json
+		body = json.loads(request.body)
+		album_id = body.get('album_id')
+		if album_id:
+			passed = request.session.get('passed_albums', [])
+			if album_id not in passed:
+				passed.append(album_id)
+				request.session['passed_albums'] = passed
+			return JsonResponse({"ok": True})
+	return JsonResponse({"error": "POST with album_id required"}, status=400)
+
+
+def reset_queue(request):
+	"""Clear the passed albums list to start fresh."""
+	request.session['passed_albums'] = []
+	return redirect('root')
 
 def search_places(request):
 	p = request.GET.get('name', '')

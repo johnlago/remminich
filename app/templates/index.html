@@ -1,28 +1,82 @@
 {% extends "_page_template.html" %}
+{% load static %}
 {% block body %}
 
+{% if has_albums %}
+<div class="swipe-view">
+    <h1 class="swipe-heading">Tag some photos</h1>
+    <p class="swipe-subheading">Swipe left to pass. Swipe right to edit.</p>
 
-    <div class="container centered">
-        <h1>Tag some photos</h1>
-        <p>Swipe right to add info. Swipe left to skip.</p>
+    <div class="swipe-area">
+        <!-- Pass zone -->
+        <button class="swipe-zone swipe-zone--pass" id="passBtn">
+            <span class="material-symbols-outlined swipe-zone__icon">undo</span>
+            <span class="swipe-zone__label">Pass</span>
+        </button>
 
-        <!-- Flex container for the layout -->
-        <div class="photo-container">
-            <button class="btn pass">← Pass</button>
+        <div class="swipe-center">
+            <!-- Card stack -->
+            <div class="card-stack" id="cardStack">
+                <div class="stack-card stack-card--back"></div>
+                <div class="stack-card stack-card--mid"></div>
 
-            <div class="photo-card">
-                <img src="{{ album_image_link }}" alt="" class="photo">
-                <h2 class="album-cover-title" >{{album_name}}</h2>
-                <div class="photo-info">
-                    <div class="meta">
-                        <p><strong>Dates:</strong> {{ summary_data.dates }}</p>
-                        <p><strong>Location:</strong> {{ summary_data.locations }}</p>
-                    </div>
+                <!-- Active card -->
+                <div class="swipe-card" id="swipeCard">
+                    <img class="swipe-card__image" id="cardImage"
+                         src="{{ album_image_link }}" alt="">
+                    <div class="swipe-card__gradient"></div>
+                    <h2 class="swipe-card__title" id="cardTitle">{{ album_name }}</h2>
                 </div>
             </div>
 
-        <a class="btn go" href="{% url 'album_detail' album_uuid %}">Let's go! →</a>
+            <!-- Info box below card -->
+            <div class="swipe-info-box" id="infoBox">
+                <div class="swipe-info-row">
+                    <span class="swipe-info-label">Dates</span>
+                    <span class="swipe-info-value" id="cardDates">
+                        {% if summary_data.dates %}
+                            {{ summary_data.dates }}
+                        {% else %}
+                            <span class="missing">Unknown</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="swipe-info-row">
+                    <span class="swipe-info-label">Captions</span>
+                    <span class="swipe-info-value" id="cardCaptions">{{ summary_data.captions_count }}</span>
+                </div>
+                <div class="swipe-info-row swipe-info-row--last">
+                    <span class="swipe-info-label">Locations</span>
+                    <span class="swipe-info-value" id="cardLocations">
+                        {% if summary_data.locations and summary_data.locations != "No locations." %}
+                            {{ summary_data.locations }}
+                        {% else %}
+                            <span class="missing">Unknown</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
         </div>
+
+        <!-- Edit zone -->
+        <button class="swipe-zone swipe-zone--edit" id="editBtn">
+            <span class="material-symbols-outlined swipe-zone__icon">check</span>
+            <span class="swipe-zone__label">Edit</span>
+        </button>
     </div>
+</div>
+
+<script>
+    const ALBUM_DATA = {{ album_data_json|safe }};
+</script>
+<script src="{% static 'script.js' %}"></script>
+
+{% else %}
+<div class="swipe-view">
+    <h1 class="swipe-heading">All caught up!</h1>
+    <p class="swipe-subheading">You've seen all the albums. Nice work.</p>
+    <a href="{% url 'reset_queue' %}" class="btn-reset">Start over</a>
+</div>
+{% endif %}
 
 {% endblock %}
