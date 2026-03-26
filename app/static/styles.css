@@ -1,32 +1,54 @@
+/* === Design Tokens (from Figma) === */
+:root {
+    --color-green: #16c249;
+    --color-pink: #ed79b5;
+    --color-blue: #1496ec;
+    --color-orange: #ec9614;
+    --color-red: #ea5050;
+    --color-text: #1e1e1e;
+    --color-text-secondary: #757575;
+    --color-bg: #f5f5f5;
+    --color-bg-alt: #ebebeb;
+    --color-border: #ddd;
+    --radius-card: 30px;
+    --radius-modal: 30px;
+    --radius-input: 10px;
+    --radius-thumb: 4px;
+    --font-primary: 'Overpass', sans-serif;
+}
+
+/* === Base === */
 body {
-    font-family: "Radio Canada", serif;
-  font-optical-sizing: auto;
-  /*font-style: normal;*/
-  font-variation-settings:
-    "wdth" 100;
+    font-family: var(--font-primary);
     font-weight: 400;
-
-    background-color: #f6f6f6;
+    background-color: var(--color-bg);
     margin: 0;
+    color: var(--color-text);
 }
 
-.centered {
-        text-align: center;
+* {
+    box-sizing: border-box;
 }
 
+/* === Header === */
 .app-header {
     background: white;
     padding: 15px 20px;
     text-align: left;
     font-size: 20px;
     font-weight: bold;
-    border-bottom: 2px solid #ddd;
+    border-bottom: 2px solid var(--color-border);
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Ensures space between logo and nav */
-
+    justify-content: space-between;
 }
 
+.logo {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--color-green);
+}
 
 .nav-items {
     list-style: none;
@@ -42,25 +64,23 @@ body {
 
 .nav-items a {
     text-decoration: none;
-    color: cornflowerblue;
+    color: var(--color-blue);
     font-size: 16px;
     font-weight: 400;
 }
 
-.logo {
-    margin: 0;
-    font-size: 26px;
-    color: forestgreen;;
+.nav-items a:hover {
+    text-decoration: underline;
 }
 
+/* === Layout === */
+.centered {
+    text-align: center;
+}
 
 .container {
-    /*max-width: 500px;*/
     margin: 0 auto;
-    /*background: white;*/
-    /*padding: 20px;*/
-    border-radius: 10px;
-    /*box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);*/
+    border-radius: var(--radius-card);
 }
 
 h1 {
@@ -69,17 +89,11 @@ h1 {
 }
 
 p {
-    color: #666;
+    color: var(--color-text-secondary);
     font-size: 14px;
 }
 
-.thumbnail-container {
-    display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-/* FLEX CONTAINER FOR LAYOUT */
+/* === Swipe View === */
 .photo-container {
     display: flex;
     align-items: center;
@@ -87,47 +101,47 @@ p {
     gap: 10px;
 }
 
-/* BUTTONS */
 .btn {
     border: none;
     padding: 15px;
     font-size: 16px;
+    font-family: var(--font-primary);
     cursor: pointer;
     width: 150px;
-    font-weight: bold;
+    font-weight: 600;
 }
 
 .pass {
-    background: #ff89a5;
+    background: var(--color-pink);
     color: white;
     height: 250px;
-    border-radius: 0 10px  10px 0 ;
+    border-radius: 0 var(--radius-card) var(--radius-card) 0;
 }
 
 .go {
-    background: #4CAF50;
+    background: var(--color-green);
     color: white;
     height: 250px;
-    border-radius: 10px 0 0 10px;
+    border-radius: var(--radius-card) 0 0 var(--radius-card);
 }
 
 a.btn {
-  display: flex;
-  align-items: center; /* vertically centers */
-  justify-content: center; /* horizontally centers (optional) */
-  text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
 }
 
 .btn:hover {
-    opacity: 0.8;
+    opacity: 0.85;
 }
 
-/* IMAGE AND METADATA */
+/* === Photo Card (Swipe View) === */
 .photo-card {
     flex-grow: .25;
     text-align: center;
     background: white;
-    border-radius: 10px;
+    border-radius: var(--radius-card);
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -142,21 +156,11 @@ a.btn {
     margin-top: -40px;
 }
 
-h2 {
-    margin: 10px 0;
-    font-size: 18px;
-}
-
-.meta p {
+.photo-info .meta p {
     font-size: 14px;
-    color: #444;
+    color: var(--color-text-secondary);
     margin: 5px 0;
 }
-
-.metadata-container {
-    padding:20px
-}
-
 
 .album-cover-title {
     position: relative;
@@ -166,20 +170,92 @@ h2 {
     text-align: left;
     padding-left: 15px;
     color: white;
-    font-weight: 400;
+    font-weight: 600;
+}
+
+/* === Album Detail View === */
+.metadata-container {
+    padding: 20px;
+}
+
+.back-link {
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    display: block;
+    margin: 10px 0 25px 0;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    color: var(--color-blue);
+}
+
+.title {
+    font-size: 32px;
+    font-weight: 600;
+    margin: 20px 0 20px 0;
+}
+
+.info {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.info .material-symbols-outlined,
+.info svg {
+    width: 22px;
+    height: 22px;
+    margin-right: 8px;
+    font-size: 22px;
+    color: var(--color-text);
+}
+
+.info svg {
+    fill: none;
+    stroke: currentColor;
+}
+
+.info .edit-btn {
+    padding-left: 10px;
+    cursor: pointer;
+    color: var(--color-blue);
+    font-size: 18px;
+}
+
+.info .edit-btn:hover {
+    opacity: 0.7;
+}
+
+.caption {
+    font-size: 16px;
+    color: var(--color-orange);
+    margin-top: 15px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* === Thumbnail Grid === */
+.thumbnail-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .image-card {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    flex-grow: 1;  /* Allows items to expand */
-    min-width: 100px; /* Ensures a minimum width before wrapping */
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    flex-grow: 1;
+    min-width: 100px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-input);
     overflow: hidden;
     text-align: center;
     padding: 10px;
+    background: white;
 }
 
 .image-container {
@@ -195,43 +271,215 @@ h2 {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
+    border-radius: var(--radius-thumb);
 }
 
 .metadata {
     margin-top: 10px;
 }
 
-.back-link {
-    color: #4d4d4d;
-    font-size: 14px;
-    display: block;
-    margin: 10px 0 25px 0;
-    text-decoration: none;
+.metadata p {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    margin: 4px 0;
 }
-.title {
-    font-size: 32px;
-    font-weight: 500;
-    margin: 20px 0 20px 0;
+
+.metadata .missing {
+    color: var(--color-orange);
 }
-.info {
+
+/* === Modals (shared) === */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+}
+
+.modal {
+    background: white;
+    width: 450px;
+    max-width: 90vw;
+    border-radius: var(--radius-modal);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 101;
+    overflow: hidden;
+}
+
+.modal .text-container {
+    padding: 30px 30px 20px;
+}
+
+.modal h2 {
+    margin-top: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.modal p {
     font-size: 14px;
-    color: #4d4d4d;
-    margin-bottom: 15px;
+    color: var(--color-text-secondary);
+}
+
+.modal-buttons {
     display: flex;
+}
+
+.modal-buttons .cancel,
+.modal-buttons .save {
+    width: 50%;
+    padding: 18px;
+    font-size: 16px;
+    font-family: var(--font-primary);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+}
+
+.modal-buttons .cancel {
+    background: var(--color-red);
+    color: white;
+    border-radius: 0 0 0 var(--radius-modal);
+}
+
+.modal-buttons .save {
+    background: var(--color-bg-alt);
+    color: var(--color-text);
+    border-radius: 0 0 var(--radius-modal) 0;
+}
+
+.modal-buttons .cancel:hover,
+.modal-buttons .save:hover {
+    opacity: 0.85;
+}
+
+/* Modal inputs */
+.input-group {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.input-wrapper {
+    display: flex;
+    flex-direction: column;
     align-items: center;
 }
-.info svg {
-    margin-top: -3px; /* awkward center offset */
-    width: 22px;
-    height: 22px;
-    margin-right: 8px;
-    fill: white;
-    /*stroke: black;*/
-}
-.caption {
+
+.input-wrapper input {
+    width: 60px;
+    height: 40px;
+    text-align: center;
     font-size: 16px;
-    color: #d48c3e;
-    margin-top: 15px;
+    font-family: var(--font-primary);
+    border: 1px solid #ccc;
+    border-radius: var(--radius-input);
+    padding: 5px;
+    outline: none;
+    background-color: var(--color-bg);
+    transition: border-color 0.2s ease-in-out;
+}
+
+.input-wrapper input:focus {
+    border-color: var(--color-blue);
+    background-color: white;
+}
+
+.input-wrapper:last-child input {
+    width: 80px;
+}
+
+.input-wrapper label {
+    margin-top: 4px;
+    font-size: 14px;
+    color: var(--color-text-secondary);
+}
+
+.input-wrapper textarea {
+    width: 100%;
+    height: 127px;
+    font-size: 16px;
+    font-family: var(--font-primary);
+    border: 1px solid #ccc;
+    border-radius: var(--radius-input);
+    padding: 10px;
+    outline: none;
+    background-color: var(--color-bg);
+    transition: border-color 0.2s ease-in-out;
+    resize: vertical;
+}
+
+.input-wrapper textarea:focus {
+    border-color: var(--color-blue);
+    background-color: white;
+}
+
+/* Location modal specifics */
+.modal input[type="text"].location-search {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    font-family: var(--font-primary);
+    border: 1px solid #ccc;
+    border-radius: var(--radius-input);
+    outline: none;
+    background-color: var(--color-bg);
+}
+
+.modal input[type="text"].location-search:focus {
+    border-color: var(--color-blue);
+    background-color: white;
+}
+
+.suggestions-dropdown {
+    position: absolute;
+    background: white;
+    width: 100%;
+    left: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-input);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.suggestions-dropdown > div {
+    padding: 10px 15px;
     cursor: pointer;
-    text-decoration: underline  ;
+    text-align: left;
+    font-size: 14px;
+    color: var(--color-text);
+}
+
+.suggestions-dropdown > div:hover {
+    background-color: var(--color-bg);
+}
+
+/* Date inputs within modal */
+.date-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.date-inputs input {
+    width: 80px;
+    padding: 5px;
+    text-align: center;
+    font-size: 16px;
+    font-family: var(--font-primary);
+    border: 1px solid #ccc;
+    border-radius: var(--radius-input);
 }

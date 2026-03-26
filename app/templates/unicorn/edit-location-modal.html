@@ -1,122 +1,29 @@
 <div>
     <script>
-        function openLocationModal() {
-            document.getElementById('editLocationModal').style.display = 'block'
-        }
-
         function closeLocationModal() {
             document.getElementById('editLocationModal').style.display = 'none';
         }
-
-        function saveImage() {
-            console.log("saved")
-            console.log(selectedCoords)
-            const response = fetch(`/search/places?name=${query}`);
-            const suggestions = response.json();
-            closeLocationModal()
-        }
     </script>
-    <style>
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-        {#display: none;#}
-        }
-
-        .modal {
-            background: white;
-            width: 400px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        {#display: none;#} position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .modal .text-container {
-            padding: 20px;
-        }
-
-        .modal h2 {
-            margin-top: 0;
-        }
-
-        .modal p {
-            font-size: 14px;
-            color: #333;
-        }
-
-        .date-inputs {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 15px 0;
-        }
-
-        .date-inputs input {
-            width: 80px;
-            padding: 5px;
-            text-align: center;
-            font-size: 16px;
-            border: 1px solid #ccc;
-        }
-
-        .modal-buttons {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .cancel, .save {
-            width: 50%;
-            padding: 10px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-        }
-
-        .cancel {
-            background: #d9534f;
-            color: white;
-            border-radius: 0 0 0 15px;
-        }
-
-        .save {
-            background: #5cb85c;
-            color: white;
-            border-radius: 0 0 15px 0;
-        }
-    </style>
     <div>
         <div class="modal-overlay" onclick="closeLocationModal()"></div>
         <div class="modal">
             <div class="text-container">
-
                 <h2>Edit album location</h2>
                 <p>If all of the photos in this album were taken at the same location, provide it here.</p>
                 <p><strong>All locations will be changed to the one you choose.<br>
                     This cannot be undone.</strong></p>
-                <input unicorn:model.debounce.500ms="search_word" type="text"
+                <input class="location-search" unicorn:model.debounce.500ms="search_word" type="text"
                        placeholder="Type a location..." autocomplete="off"/>
 
                 {% if chosen %}
-                <p style="margin-bottom: 0px"><strong>Location: </strong>{{ chosen.pretty }}</p>
+                <p style="margin-bottom: 0"><strong>Location: </strong>{{ chosen.pretty }}</p>
                 {% endif %}
 
-                <div id="suggestions"
-                     style="position: absolute; background: white; width: 260px; left: 0; right: 0; margin: 0 auto;">
+                <div class="suggestions-dropdown" style="position: relative; {% if not suggestions %}display: none;{% endif %}">
                     {% for suggestion in suggestions %}
-                        <div unicorn:click="updateChosen({{ suggestion }})"> {{ suggestion.pretty }} </div>
-                        {#                    <div onclick="console.log({{ suggestion }})"> {{ suggestion.pretty }} </div>#}
+                        <div unicorn:click="updateChosen({{ suggestion }})">{{ suggestion.pretty }}</div>
                     {% endfor %}
                 </div>
-
-
             </div>
 
             <div class="modal-buttons">
