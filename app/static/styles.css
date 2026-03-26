@@ -237,6 +237,48 @@ a.btn {
     text-decoration: underline;
 }
 
+/* === Asset Edit Modal === */
+.asset-edit-modal {
+    width: 500px;
+}
+
+.asset-edit-thumb {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 16px;
+    border-radius: var(--radius-input);
+    overflow: hidden;
+}
+
+.asset-edit-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.asset-edit-section {
+    margin-top: 16px;
+    text-align: left;
+}
+
+.asset-edit-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
+    display: block;
+    margin-bottom: 6px;
+}
+
+.image-card--clickable {
+    cursor: pointer;
+    transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.image-card--clickable:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
 /* === Thumbnail Grid === */
 .thumbnail-container {
     display: flex;

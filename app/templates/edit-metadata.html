@@ -17,6 +17,64 @@
             {% unicorn "caption-modal" album_id=immich.id caption=immich.description %}
         </div>
 
+        <!-- Single-asset edit modal (JS-driven) -->
+        <div style="display:none" id="assetEditModal">
+            <div class="modal-overlay" onclick="closeAssetEditModal()"></div>
+            <div class="modal asset-edit-modal">
+                <div class="text-container">
+                    <h2>Edit photo</h2>
+
+                    <div class="asset-edit-thumb">
+                        <img id="assetEditThumb" src="" alt="">
+                    </div>
+
+                    <div class="asset-edit-section">
+                        <label class="asset-edit-label">Description</label>
+                        <div class="input-wrapper">
+                            <textarea id="assetEditDesc" placeholder="Add a description..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="asset-edit-section">
+                        <label class="asset-edit-label">Date</label>
+                        <div class="input-group">
+                            <div class="input-wrapper">
+                                <input id="assetEditMonth" type="text" placeholder="MM" maxlength="2">
+                                <label>Month</label>
+                            </div>
+                            <div class="input-wrapper">
+                                <input id="assetEditDay" type="text" placeholder="DD" maxlength="2">
+                                <label>Day</label>
+                            </div>
+                            <div class="input-wrapper">
+                                <input id="assetEditYear" type="text" placeholder="YYYY" maxlength="4">
+                                <label>Year</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="asset-edit-section" style="position:relative;">
+                        <label class="asset-edit-label">Location</label>
+                        <div id="assetEditLocationDisplay" style="display:none;">
+                            <p style="margin:4px 0 0;"><strong id="assetEditLocationName"></strong>
+                                <span onclick="clearAssetLocation()" style="cursor:pointer;color:var(--color-red);font-size:13px;margin-left:6px;">clear</span>
+                            </p>
+                        </div>
+                        <div id="assetEditLocationSearch">
+                            <input class="location-search" id="assetEditLocInput" type="text"
+                                   placeholder="Search for a location..." autocomplete="off">
+                            <div class="suggestions-dropdown" id="assetEditLocSuggestions" style="position:relative;display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-buttons">
+                    <button class="cancel" onclick="closeAssetEditModal()">Cancel</button>
+                    <button class="save" onclick="saveAssetEdit()">Save</button>
+                </div>
+            </div>
+        </div>
+
         <div class="container">
             <a href="/" class="back-link">&larr; Back to swiping</a>
 
@@ -53,7 +111,8 @@
         <hr>
         <div class="thumbnail-container">
             {% for asset in immich.assets %}
-                <div class="image-card">
+                <div class="image-card image-card--clickable"
+                     onclick="openAssetEditModal('{{ asset.id }}', '{{ asset.exifInfo.description|escapejs }}', '{{ asset.exifInfo.dateTimeOriginal|escapejs }}', '{{ asset.exifInfo.city|escapejs }}', '{{ asset.exifInfo.state|escapejs }}', {{ asset.exifInfo.latitude|default:"null" }}, {{ asset.exifInfo.longitude|default:"null" }})">
                     <div class="image-container">
                         <img src="/asset/{{ asset.id }}/thumb" alt="">
                     </div>
@@ -77,4 +136,144 @@
         </div>
 
     </div>
+
+    <script>
+    (function() {
+        var currentAssetId = '';
+        var currentAlbumId = '{{ immich.id }}';
+        var chosenLat = null;
+        var chosenLng = null;
+        var searchTimer = null;
+
+        window.openAssetEditModal = function(assetId, description, dateStr, city, state, lat, lng) {
+            currentAssetId = assetId;
+            document.getElementById('assetEditThumb').src = '/asset/' + assetId + '/thumb';
+            document.getElementById('assetEditDesc').value = description || '';
+
+            // Parse date
+            var month = '', day = '', year = '';
+            if (dateStr) {
+                try {
+                    var dt = new Date(dateStr);
+                    month = String(dt.getUTCMonth() + 1);
+                    day = String(dt.getUTCDate());
+                    year = String(dt.getUTCFullYear());
+                } catch(e) {}
+            }
+            document.getElementById('assetEditMonth').value = month;
+            document.getElementById('assetEditDay').value = day;
+            document.getElementById('assetEditYear').value = year;
+
+            // Location
+            chosenLat = lat;
+            chosenLng = lng;
+            var locDisplay = document.getElementById('assetEditLocationDisplay');
+            var locSearch = document.getElementById('assetEditLocationSearch');
+            if (city || state) {
+                var parts = [city, state].filter(Boolean);
+                document.getElementById('assetEditLocationName').textContent = parts.join(', ');
+                locDisplay.style.display = 'block';
+                locSearch.style.display = 'none';
+            } else {
+                locDisplay.style.display = 'none';
+                locSearch.style.display = 'block';
+            }
+            document.getElementById('assetEditLocInput').value = '';
+            document.getElementById('assetEditLocSuggestions').style.display = 'none';
+
+            document.getElementById('assetEditModal').style.display = 'block';
+        };
+
+        window.closeAssetEditModal = function() {
+            document.getElementById('assetEditModal').style.display = 'none';
+        };
+
+        window.clearAssetLocation = function() {
+            chosenLat = null;
+            chosenLng = null;
+            document.getElementById('assetEditLocationDisplay').style.display = 'none';
+            document.getElementById('assetEditLocationSearch').style.display = 'block';
+        };
+
+        // Location search
+        var locInput = document.getElementById('assetEditLocInput');
+        if (locInput) {
+            locInput.addEventListener('input', function() {
+                clearTimeout(searchTimer);
+                var val = locInput.value.trim();
+                if (val.length < 2) {
+                    document.getElementById('assetEditLocSuggestions').style.display = 'none';
+                    return;
+                }
+                searchTimer = setTimeout(function() {
+                    fetch('/search/places?name=' + encodeURIComponent(val))
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            var container = document.getElementById('assetEditLocSuggestions');
+                            container.innerHTML = '';
+                            var items = data.slice(0, 10);
+                            items.forEach(function(item) {
+                                var parts = [item.name];
+                                if (item.admin1name) parts.push(item.admin1name);
+                                if (item.admin2name) parts.push(item.admin2name);
+                                var pretty = parts.join(', ');
+                                var div = document.createElement('div');
+                                div.textContent = pretty;
+                                div.onclick = function() {
+                                    chosenLat = item.latitude;
+                                    chosenLng = item.longitude;
+                                    document.getElementById('assetEditLocationName').textContent = pretty;
+                                    document.getElementById('assetEditLocationDisplay').style.display = 'block';
+                                    document.getElementById('assetEditLocationSearch').style.display = 'none';
+                                };
+                                container.appendChild(div);
+                            });
+                            container.style.display = items.length ? 'block' : 'none';
+                        });
+                }, 400);
+            });
+        }
+
+        window.saveAssetEdit = function() {
+            var body = {
+                album_id: currentAlbumId,
+                description: document.getElementById('assetEditDesc').value,
+            };
+
+            var year = document.getElementById('assetEditYear').value;
+            if (year) {
+                var m = parseInt(document.getElementById('assetEditMonth').value) || 1;
+                var d = parseInt(document.getElementById('assetEditDay').value) || 1;
+                var y = parseInt(year);
+                body.dateTimeOriginal = y.toString().padStart(4, '0') + '-' +
+                    m.toString().padStart(2, '0') + '-' +
+                    d.toString().padStart(2, '0') + 'T00:00:00.000Z';
+            }
+
+            if (chosenLat !== null && chosenLng !== null) {
+                body.latitude = chosenLat;
+                body.longitude = chosenLng;
+            }
+
+            var csrfEl = document.querySelector('[name=csrfmiddlewaretoken]');
+            var csrf = csrfEl ? csrfEl.value : '';
+
+            fetch('/api/asset/' + currentAssetId + '/update/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrf,
+                },
+                body: JSON.stringify(body),
+            })
+            .then(function(r) { return r.json(); })
+            .then(function() {
+                window.location.reload();
+            })
+            .catch(function(err) {
+                alert('Error saving: ' + err);
+            });
+        };
+    })();
+    </script>
 {% endblock %}

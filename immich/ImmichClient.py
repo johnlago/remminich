@@ -1,4 +1,4 @@
-from immich.models import SearchModel, BulkUpdateAssetsModel, UpdateAlbumModel
+from immich.models import SearchModel, BulkUpdateAssetsModel, UpdateAlbumModel, SingleAssetUpdateModel
 import requests
 import json
 import os
@@ -46,6 +46,12 @@ class _ImmichClient:
 		url = self.make_thumb_url(asset_id)
 		response = requests.get(url, headers=self.headers)
 		return response
+
+	def update_asset(self, asset_id: str, update: SingleAssetUpdateModel):
+		"""Update a single asset's metadata. PUT /api/assets/:id"""
+		url = f"{self.base_url}/api/assets/{asset_id}"
+		response = requests.put(url, headers=self.headers, data=update.model_dump_json(exclude_unset=True))
+		return self._handle_response(response)
 
 	def update_assets(self, asset_update:BulkUpdateAssetsModel):
 		url = f"{self.base_url}/api/assets"

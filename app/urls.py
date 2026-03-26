@@ -30,6 +30,7 @@ urlpatterns = [
     path('albums/update', views.update_album, name='update_album'),
     path('search/places', views.search_places, name='search_places'),
     path('api/next-album/', views.next_album, name='next_album'),
+    path('api/asset/<uuid:asset_uuid>/update/', views.update_asset, name='update_asset'),
     path('api/pass-album/', views.pass_album, name='pass_album'),
     path('api/reset-queue/', views.reset_queue, name='reset_queue'),
 

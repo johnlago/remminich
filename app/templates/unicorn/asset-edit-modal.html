@@ -1,0 +1,74 @@
+<div>
+    <script>
+        function closeAssetEditModal() {
+            document.getElementById('assetEditModal').style.display = 'none';
+        }
+    </script>
+    <div>
+        <div class="modal-overlay" onclick="closeAssetEditModal()"></div>
+        <div class="modal asset-edit-modal">
+            <div class="text-container">
+                <h2>Edit photo</h2>
+
+                {% if thumb_url %}
+                <div class="asset-edit-thumb">
+                    <img src="{{ thumb_url }}" alt="">
+                </div>
+                {% endif %}
+
+                <!-- Description -->
+                <div class="asset-edit-section">
+                    <label class="asset-edit-label">Description</label>
+                    <div class="input-wrapper">
+                        <textarea unicorn:model.lazy="description" placeholder="Add a description...">{{ description }}</textarea>
+                    </div>
+                </div>
+
+                <!-- Date -->
+                <div class="asset-edit-section">
+                    <label class="asset-edit-label">Date</label>
+                    <div class="input-group">
+                        <div class="input-wrapper">
+                            <input unicorn:model.lazy="date_month" type="text" placeholder="MM" maxlength="2">
+                            <label>Month</label>
+                        </div>
+                        <div class="input-wrapper">
+                            <input unicorn:model.lazy="date_day" type="text" placeholder="DD" maxlength="2">
+                            <label>Day</label>
+                        </div>
+                        <div class="input-wrapper">
+                            <input unicorn:model.lazy="date_year" type="text" placeholder="YYYY" maxlength="4">
+                            <label>Year</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div class="asset-edit-section" style="position: relative;">
+                    <label class="asset-edit-label">Location</label>
+                    {% if chosen_location and chosen_location.pretty %}
+                        <p style="margin: 4px 0 0;"><strong>{{ chosen_location.pretty }}</strong>
+                            <span unicorn:click="clear_location" style="cursor:pointer; color:var(--color-red); font-size:13px; margin-left:6px;">clear</span>
+                        </p>
+                    {% else %}
+                        <input class="location-search" unicorn:model.debounce.500ms="location_search"
+                               type="text" placeholder="Search for a location..." autocomplete="off"/>
+
+                        {% if location_suggestions %}
+                        <div class="suggestions-dropdown" style="position: relative;">
+                            {% for s in location_suggestions %}
+                                <div unicorn:click="select_location({{ s }})">{{ s.pretty }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="cancel" onclick="closeAssetEditModal()">Cancel</button>
+                <button class="save" unicorn:click="save">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

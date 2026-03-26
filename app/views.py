@@ -24,7 +24,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Album
 from .neediness import get_album_queue, invalidate_cache
 from immich.ImmichClient import ImmichClient
-from immich.models import BulkUpdateAssetsModel
+from immich.models import BulkUpdateAssetsModel, SingleAssetUpdateModel
 
 needs_email_verify = True
 
@@ -424,3 +424,29 @@ def update_album(request):
 
 		result = ImmichClient.update_assets(BulkUpdateAssetsModel(ids=asset_ids, **update_data))
 		return JsonResponse({"ok": True})
+
+
+@csrf_exempt
+def update_asset(request, asset_uuid):
+	"""Update a single asset's metadata via JSON POST."""
+	if request.method == 'POST':
+		import json
+		body = json.loads(request.body)
+		album_id = body.get('album_id')
+
+		update = SingleAssetUpdateModel()
+		if 'description' in body:
+			update.description = body['description']
+		if 'dateTimeOriginal' in body:
+			update.dateTimeOriginal = body['dateTimeOriginal']
+		if 'latitude' in body and 'longitude' in body:
+			update.latitude = float(body['latitude'])
+			update.longitude = float(body['longitude'])
+
+		ImmichClient.update_asset(str(asset_uuid), update)
+
+		if album_id:
+			invalidate_cache(album_id)
+
+		return JsonResponse({"ok": True})
+	return JsonResponse({"error": "POST required"}, status=400)
