@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 import json
 
-def adjust_iso8601_time(iso_string: str, years=0, days=0, hours=0, minutes=0, seconds=0, timezone='UTC') -> str | None:
+def adjust_iso8601_time(iso_string: str, years=0, months=0, days=0, hours=0, minutes=0, seconds=0, timezone='UTC') -> str | None:
 	try:
 		# Parse the ISO 8601 string, handling time zones manually
 		if 'Z' in iso_string:
@@ -22,8 +22,18 @@ def adjust_iso8601_time(iso_string: str, years=0, days=0, hours=0, minutes=0, se
 		if timezone != 'UTC':
 			dt = dt.astimezone(ZoneInfo(timezone))
 
-		# Adjust the datetime object
-		adjusted_dt = dt.replace(year=dt.year + years) + timedelta(days=days, hours=hours, minutes=minutes,
+		# Adjust year and month together (months can overflow into years)
+		new_year = dt.year + years
+		new_month = dt.month + months
+		# Normalize month to 1-12 range
+		new_year += (new_month - 1) // 12
+		new_month = ((new_month - 1) % 12) + 1
+		# Clamp day to valid range for the new month
+		import calendar
+		max_day = calendar.monthrange(new_year, new_month)[1]
+		new_day = min(dt.day, max_day)
+
+		adjusted_dt = dt.replace(year=new_year, month=new_month, day=new_day) + timedelta(days=days, hours=hours, minutes=minutes,
 																   seconds=seconds)
 
 		# Convert back to ISO 8601 format in UTC

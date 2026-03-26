@@ -87,9 +87,9 @@ def register(request):
 				# activateEmail(request, user, form.cleaned_data.get('email'))
 
 				send_mail(
-					'Activate your Art Stream account.',
+					'Activate your Remminich account.',
 					_get_message(request, user),
-					'sales@artstreamvideos.com',
+					None,  # uses DEFAULT_FROM_EMAIL setting
 					[form.cleaned_data.get('email')],
 					fail_silently=False,
 				)
@@ -154,9 +154,9 @@ def register_submit(request):
 				user.save()
 
 				send_mail(
-					'Activate your Art Stream account.',
+					'Activate your Remminich account.',
 					_get_message(request, user),
-					'sales@artstreamvideos.com',
+					None,  # uses DEFAULT_FROM_EMAIL setting
 					[form.cleaned_data.get('email')],
 					fail_silently=False,
 				)
@@ -229,7 +229,7 @@ def _get_summary_data(assetResp: dict):
 	for asset in assetResp['assets']:
 		metadata = asset['exifInfo']
 		long = metadata['longitude']
-		lat = metadata['longitude']
+		lat = metadata['latitude']
 		city = metadata['city']
 		state = metadata['state']
 		country = metadata['country']
@@ -315,6 +315,20 @@ def get_asset_thumbnail(request, asset_uuid):
 @csrf_exempt
 def update_album(request):
 	if request.method == 'POST':
+		import json
+		body = json.loads(request.body)
+		album_id = body.get('album_id')
+		asset_ids = body.get('ids', [])
+		if not album_id or not asset_ids:
+			return JsonResponse({"error": "album_id and ids are required"}, status=400)
 
-		ImmichClient.update_assets(BulkUpdateAssetsModel(ids=[], ))
-		return JsonResponse({"id": str(album.id), "title": album.title})
+		update_data = {}
+		if 'dateTimeOriginal' in body:
+			update_data['dateTimeOriginal'] = body['dateTimeOriginal']
+		if 'latitude' in body:
+			update_data['latitude'] = body['latitude']
+		if 'longitude' in body:
+			update_data['longitude'] = body['longitude']
+
+		result = ImmichClient.update_assets(BulkUpdateAssetsModel(ids=asset_ids, **update_data))
+		return JsonResponse({"ok": True})

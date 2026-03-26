@@ -27,7 +27,7 @@ class EditLocationModalView(UnicornView):
         print("toggle")
         self.showing = not self.showing
 
-    def updateChoosen(self,a):
+    def updateChosen(self,a):
         self.chosen = a
         self.suggestions = []
         self.search_word = ""

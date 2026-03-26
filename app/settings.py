@@ -64,12 +64,11 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware"
 ]
 
-_debug = os.environ.get("DJANGO_DEBUG", "False")
-show_toolbar = _debug == "True"
-def show_toolbar(request):
-    return show_toolbar
+_show_debug_toolbar = os.environ.get("DJANGO_DEBUG", "False") == "True"
+def _debug_toolbar_callback(request):
+    return _show_debug_toolbar
 DEBUG_TOOLBAR_CONFIG = {
-    "SHOW_TOOLBAR_CALLBACK" : show_toolbar,
+    "SHOW_TOOLBAR_CALLBACK" : _debug_toolbar_callback,
 }
 
 
@@ -186,12 +185,11 @@ _hours = 4
 PASSWORD_RESET_TIMEOUT = _hours * 60 * 60
 
 # Emailing settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'mail.mailconfig.net'
-EMAIL_FROM = 'from@gmail.com'
-EMAIL_HOST_USER = 'sales@gmail.com'
-EMAIL_HOST_PASSWORD = 'pwpwpwpw'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-# PASSWORD_RESET_TIMEOUT = 14400
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'localhost')
+EMAIL_FROM = os.environ.get('EMAIL_FROM', 'noreply@remminich.local')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
 DEFAULT_FROM_EMAIL = EMAIL_FROM
